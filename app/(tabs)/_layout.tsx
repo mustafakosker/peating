@@ -21,9 +21,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
               <Ionicons
-                name={focused ? 'home' : 'home-outline'}
-                size={24}
-                color={color}
+                name="home-outline"
+                size={22}
+                color={focused ? Colors.white : color}
               />
             </View>
           ),
@@ -36,9 +36,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
               <Ionicons
-                name={focused ? 'stats-chart' : 'stats-chart-outline'}
-                size={24}
-                color={color}
+                name="trending-up"
+                size={22}
+                color={focused ? Colors.white : color}
               />
             </View>
           ),
@@ -51,9 +51,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
               <Ionicons
-                name={focused ? 'scan' : 'scan-outline'}
-                size={24}
-                color={color}
+                name="sparkles-outline"
+                size={22}
+                color={focused ? Colors.white : color}
               />
             </View>
           ),
@@ -66,9 +66,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
               <Ionicons
-                name={focused ? 'restaurant' : 'restaurant-outline'}
-                size={24}
-                color={color}
+                name="bag-outline"
+                size={22}
+                color={focused ? Colors.white : color}
               />
             </View>
           ),
@@ -81,9 +81,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.tabIconContainer, focused && styles.tabIconActive]}>
               <Ionicons
-                name={focused ? 'settings' : 'settings-outline'}
-                size={24}
-                color={color}
+                name="settings-outline"
+                size={22}
+                color={focused ? Colors.white : color}
               />
             </View>
           ),
@@ -96,28 +96,33 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-    bottom: 30,
-    left: 20,
-    right: 20,
+    bottom: 40,
+    left: 16,
+    right: 16,
     backgroundColor: Colors.gray400,
-    borderRadius: 100,
-    height: 66,
-    paddingBottom: 0,
+    borderRadius: 40,
+    height: 64,
     borderTopWidth: 0,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.24,
-    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
     elevation: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingHorizontal: 8,
   },
   tabIconContainer: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: Colors.gray600,
   },
   tabIconActive: {
-    backgroundColor: Colors.accent100,
+    backgroundColor: Colors.primary,
+    borderRadius: 14,
   },
 });
