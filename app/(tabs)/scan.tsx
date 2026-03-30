@@ -2,12 +2,12 @@ import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
 
-export default function SettingsScreen() {
+export default function ScanScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.content}>
-        <Text style={styles.title}>Settings</Text>
-        <Text style={styles.subtitle}>Manage your preferences</Text>
+        <Text style={styles.title}>Scan</Text>
+        <Text style={styles.subtitle}>Scan your food to log calories</Text>
       </View>
     </SafeAreaView>
   );
