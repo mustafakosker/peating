@@ -5,3 +5,5 @@ export { SettingsMenuItem } from './SettingsMenuItem';
 export { UserProfileCard } from './UserProfileCard';
 export { FormInput } from './FormInput';
 export { FormDropdown } from './FormDropdown';
+export { VitalsCard } from './VitalsCard';
+export { AddVitalSheet } from './AddVitalSheet';

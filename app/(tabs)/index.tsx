@@ -1,15 +1,65 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState, useEffect, useCallback } from 'react';
 import { Colors } from '../../constants/Colors';
 import { HeaderBar } from '../../components/HeaderBar';
 import { CalendarWeek } from '../../components/CalendarWeek';
 import { CaloriesCard } from '../../components/CaloriesCard';
 import { NutritionCard } from '../../components/NutritionCard';
 import { DietPlanCard } from '../../components/DietPlanCard';
+import { VitalsCard } from '../../components/VitalsCard';
+import { AddVitalSheet } from '../../components/AddVitalSheet';
+import { TrendDirection } from '../../types/vitals';
+import {
+  getLatestByType,
+  getPreferredTempUnit,
+  getTrendForType,
+} from '../../services/vitalsService';
 
 const DIET_IMAGE = 'https://www.figma.com/api/mcp/asset/e934d0a8-7243-4a5c-b821-1c61e50508d4';
 
 export default function HomeScreen() {
+  const [sheetVisible, setSheetVisible] = useState(false);
+  const [temperature, setTemperature] = useState<number | null>(null);
+  const [tempUnit, setTempUnit] = useState<'F' | 'C'>('F');
+  const [tempTrend, setTempTrend] = useState<TrendDirection>('none');
+  const [pulse, setPulse] = useState<number | null>(null);
+  const [pulseTrend, setPulseTrend] = useState<TrendDirection>('none');
+
+  const loadVitalsData = useCallback(async () => {
+    try {
+      const [latestTemp, latestPulse, preferredUnit, tempTrendValue, pulseTrendValue] = await Promise.all([
+        getLatestByType('temperature'),
+        getLatestByType('pulse'),
+        getPreferredTempUnit(),
+        getTrendForType('temperature'),
+        getTrendForType('pulse'),
+      ]);
+
+      setTemperature(latestTemp?.value ?? null);
+      setPulse(latestPulse?.value ?? null);
+      setTempUnit(preferredUnit);
+      setTempTrend(tempTrendValue);
+      setPulseTrend(pulseTrendValue);
+    } catch (error) {
+      console.error('Failed to load vitals:', error);
+      // Use defaults if storage fails
+      setTempUnit('F');
+    }
+  }, []);
+
+  useEffect(() => {
+    loadVitalsData();
+  }, [loadVitalsData]);
+
+  const handleVitalsPress = () => {
+    setSheetVisible(true);
+  };
+
+  const handleVitalsSave = async () => {
+    await loadVitalsData();
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView
@@ -21,6 +71,18 @@ export default function HomeScreen() {
 
         <View style={styles.content}>
           <CalendarWeek />
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Today's Vitals</Text>
+            <VitalsCard
+              temperature={temperature}
+              tempUnit={tempUnit}
+              tempTrend={tempTrend}
+              pulse={pulse}
+              pulseTrend={pulseTrend}
+              onPress={handleVitalsPress}
+            />
+          </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Count Your Daily Calories</Text>
@@ -45,6 +107,13 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      <AddVitalSheet
+        visible={sheetVisible}
+        tempUnit={tempUnit}
+        onClose={() => setSheetVisible(false)}
+        onSave={handleVitalsSave}
+      />
     </SafeAreaView>
   );
 }
