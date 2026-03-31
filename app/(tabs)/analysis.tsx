@@ -23,14 +23,6 @@ export default function AnalysisScreen() {
         </View>
 
         <View style={styles.content}>
-          {/* Nutrition Analysis Banner */}
-          <View style={styles.banner}>
-            <Text style={styles.bannerTitle}>Your Nutrition Analysis</Text>
-            <Text style={styles.bannerSubtitle}>
-              Track trends. Spot patterns. Crush your goals.
-            </Text>
-          </View>
-
           {/* Tab Selector */}
           <TabSelector
             tabs={TABS}
@@ -79,21 +71,5 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     gap: 20,
-  },
-  banner: {
-    backgroundColor: Colors.accent300,
-    borderRadius: 24,
-    padding: 24,
-  },
-  bannerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: Colors.white,
-    marginBottom: 8,
-  },
-  bannerSubtitle: {
-    fontSize: 17,
-    color: Colors.white,
-    lineHeight: 25,
   },
 });
