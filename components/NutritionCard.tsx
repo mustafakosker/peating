@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/Colors';
+import { useAnimatedProgress } from './hooks/useAnimatedProgress';
 
 type NutritionCardProps = {
   type: 'carbs' | 'protein';
@@ -11,6 +12,19 @@ type NutritionCardProps = {
 export function NutritionCard({ type, current, total }: NutritionCardProps) {
   const progress = (current / total) * 100;
   const isCarbs = type === 'carbs';
+
+  // Animated progress - animates from 0 to target progress percentage
+  const { animatedValue, displayValue } = useAnimatedProgress({ toValue: progress });
+
+  // Interpolate width from 0% to target progress%
+  const animatedWidth = animatedValue.interpolate({
+    inputRange: [0, progress],
+    outputRange: ['0%', `${progress}%`],
+    extrapolate: 'clamp',
+  });
+
+  // Calculate displayed value based on animation progress
+  const displayedCurrent = Math.round((displayValue / 100) * total);
 
   return (
     <View style={[styles.container, isCarbs ? styles.carbsBackground : styles.proteinBackground]}>
@@ -26,10 +40,10 @@ export function NutritionCard({ type, current, total }: NutritionCardProps) {
 
       <View style={styles.progressContainer}>
         <View style={styles.progressBackground}>
-          <View style={[styles.progressFill, { width: `${progress}%` }]} />
+          <Animated.View style={[styles.progressFill, { width: animatedWidth }]} />
         </View>
         <View style={styles.valuesContainer}>
-          <Text style={styles.valueText}>{current}g</Text>
+          <Text style={styles.valueText}>{displayedCurrent}g</Text>
           <Text style={styles.valueText}>{total}g</Text>
         </View>
       </View>
@@ -71,6 +85,7 @@ const styles = StyleSheet.create({
     height: 6,
     backgroundColor: 'rgba(18, 18, 18, 0.1)',
     borderRadius: 5,
+    overflow: 'hidden',
   },
   progressFill: {
     height: 6,

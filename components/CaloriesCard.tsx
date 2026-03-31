@@ -1,6 +1,9 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { Colors } from '../constants/Colors';
-import Svg, { Circle, Path } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
+import { useAnimatedProgress } from './hooks/useAnimatedProgress';
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 type CaloriesCardProps = {
   caloriesLeft: number;
@@ -17,6 +20,22 @@ export function CaloriesCard({ caloriesLeft = 1672, totalCalories = 2000 }: Calo
   const circumference = radius * Math.PI; // Half circle
   const progressOffset = circumference - (progress / 100) * circumference;
 
+  // Animated progress - animates from 0 to target progress
+  const { animatedValue, displayValue } = useAnimatedProgress({ toValue: progress });
+
+  // Interpolate for strokeDashoffset: starts at full circumference (0%), ends at progressOffset
+  const animatedOffset = animatedValue.interpolate({
+    inputRange: [0, progress],
+    outputRange: [circumference, progressOffset],
+    extrapolate: 'clamp',
+  });
+
+  // Calculate displayed calories based on animation progress
+  // When progress is 0%, display totalCalories. When at target, display caloriesLeft.
+  const displayedCalories = Math.round(
+    totalCalories - (displayValue / 100) * totalCalories
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Calories</Text>
@@ -31,21 +50,21 @@ export function CaloriesCard({ caloriesLeft = 1672, totalCalories = 2000 }: Calo
             fill="none"
             strokeLinecap="round"
           />
-          {/* Progress arc */}
-          <Path
+          {/* Animated Progress arc */}
+          <AnimatedPath
             d={`M ${strokeWidth / 2} ${size / 2} A ${radius} ${radius} 0 0 1 ${size - strokeWidth / 2} ${size / 2}`}
             stroke={Colors.background}
             strokeWidth={strokeWidth}
             fill="none"
             strokeLinecap="round"
             strokeDasharray={`${circumference}`}
-            strokeDashoffset={progressOffset}
+            strokeDashoffset={animatedOffset}
           />
         </Svg>
 
         <View style={styles.centerInfo}>
           <View style={styles.innerCircle}>
-            <Text style={styles.caloriesValue}>{caloriesLeft}</Text>
+            <Text style={styles.caloriesValue}>{displayedCalories}</Text>
             <Text style={styles.caloriesLabel}>Left</Text>
           </View>
         </View>

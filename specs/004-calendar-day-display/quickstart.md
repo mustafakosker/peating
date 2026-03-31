@@ -1,3 +1,24 @@
+# Quickstart: Calendar Day Display Fix
+
+**Feature**: 004-calendar-day-display
+**Date**: 2026-03-31
+
+## Overview
+
+Fix the CalendarWeek component to display dynamic dates based on the current week, highlight today with the primary color, and ensure all day columns are horizontally aligned.
+
+## Prerequisites
+
+- Expo development environment set up
+- Project dependencies installed (`npm install`)
+
+## Quick Implementation
+
+### 1. Update CalendarWeek Component
+
+Replace the contents of `components/CalendarWeek.tsx`:
+
+```typescript
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../constants/Colors';
 
@@ -10,10 +31,9 @@ type DayData = {
 
 function getCurrentWeekDates(): DayData[] {
   const today = new Date();
-  const dayOfWeek = today.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  const dayOfWeek = today.getDay();
 
   // Calculate Monday of current week
-  // If today is Sunday (0), go back 6 days; otherwise go back (dayOfWeek - 1) days
   const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
   const monday = new Date(today);
   monday.setDate(today.getDate() + mondayOffset);
@@ -121,3 +141,27 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+```
+
+## Verification Checklist
+
+- [x] Calendar displays current week (Monday through Sunday)
+- [x] Today's date is highlighted with primary color (#FF5A16)
+- [x] All day columns are vertically aligned
+- [x] Past days appear muted (gray)
+- [x] Future days appear in normal color
+- [x] Month boundaries display correctly (test on month-end dates)
+- [x] Single and double-digit dates align properly
+
+## Running the App
+
+```bash
+npx expo start
+```
+
+## Testing
+
+1. Open the home screen
+2. Verify the displayed week matches the current week
+3. Verify today's date has the orange (#FF5A16) highlight
+4. Visually confirm all day columns are at the same horizontal level
