@@ -1,23 +1,122 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/Colors';
 import { ScanModeButton } from '../../components/ScanModeButton';
+import { PermissionDenied } from '../../components/PermissionDenied';
+import { saveImage } from '../../services/imageStorage';
+import { CapturedImage } from '../../types/camera';
 
 type ScanMode = 'camera' | 'barcode' | 'gallery';
 
 export default function ScanScreen() {
   const [activeMode, setActiveMode] = useState<ScanMode>('camera');
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [mediaLibraryPermission, requestMediaLibraryPermission] =
+    ImagePicker.useMediaLibraryPermissions();
+  const [capturedImage, setCapturedImage] = useState<CapturedImage | null>(null);
+  const [cameraReady, setCameraReady] = useState(false);
+  const cameraRef = useRef<CameraView>(null);
+
+  // Request camera permission on mount
+  useEffect(() => {
+    if (!cameraPermission?.granted && cameraPermission?.canAskAgain !== false) {
+      requestCameraPermission();
+    }
+  }, [cameraPermission, requestCameraPermission]);
+
+  const handleCapture = async () => {
+    if (!cameraRef.current || !cameraReady) return;
+
+    const photo = await cameraRef.current.takePictureAsync({
+      quality: 0.8,
+    });
+
+    if (photo?.uri) {
+      const saved = await saveImage(photo.uri, 'camera');
+      setCapturedImage(saved);
+    }
+  };
+
+  const handlePickImage = async () => {
+    if (!mediaLibraryPermission?.granted) {
+      const result = await requestMediaLibraryPermission();
+      if (!result.granted) return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      const saved = await saveImage(result.assets[0].uri, 'gallery');
+      setCapturedImage(saved);
+    }
+  };
+
+  const handleModeChange = (mode: ScanMode) => {
+    setActiveMode(mode);
+    if (mode === 'gallery') {
+      handlePickImage();
+    }
+  };
+
+  const renderCameraContent = () => {
+    // Show permission denied for camera mode
+    if (activeMode === 'camera' && !cameraPermission?.granted) {
+      return <PermissionDenied type="camera" />;
+    }
+
+    // Show captured/selected image if available
+    if (capturedImage) {
+      return (
+        <Image
+          source={{ uri: capturedImage.uri }}
+          style={styles.previewImage}
+        />
+      );
+    }
+
+    // Show live camera preview
+    if (activeMode === 'camera' && cameraPermission?.granted) {
+      return (
+        <CameraView
+          ref={cameraRef}
+          style={styles.camera}
+          facing="back"
+          onCameraReady={() => setCameraReady(true)}
+        />
+      );
+    }
+
+    // Default placeholder for barcode mode or gallery without selection
+    return (
+      <View style={styles.placeholder}>
+        <Ionicons
+          name={activeMode === 'barcode' ? 'barcode-outline' : 'images-outline'}
+          size={64}
+          color={Colors.gray300}
+        />
+        <Text style={styles.placeholderText}>
+          {activeMode === 'barcode' ? 'Barcode scanning coming soon' : 'Tap to select a photo'}
+        </Text>
+      </View>
+    );
+  };
+
+  const headerTitle = activeMode === 'camera' ? 'AI Camera'
+    : activeMode === 'barcode' ? 'AI Barcode' : 'Gallery';
 
   return (
     <View style={styles.container}>
-      {/* Camera Preview Background */}
-      <Image
-        source={{ uri: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80' }}
-        style={styles.cameraPreview}
-        blurRadius={2}
-      />
+      {/* Camera/Image Preview */}
+      <View style={styles.previewContainer}>
+        {renderCameraContent()}
+      </View>
 
       {/* Dark Overlay */}
       <View style={styles.overlay} />
@@ -31,12 +130,6 @@ export default function ScanScreen() {
           <View style={[styles.corner, styles.cornerBottomLeft]} />
           <View style={[styles.corner, styles.cornerBottomRight]} />
 
-          {/* Clear area for scanning */}
-          <Image
-            source={{ uri: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80' }}
-            style={styles.scanAreaImage}
-          />
-
           {/* Highlighted bottom area */}
           <View style={styles.highlightedArea} />
         </View>
@@ -45,7 +138,7 @@ export default function ScanScreen() {
       {/* Header */}
       <SafeAreaView style={styles.header} edges={['top']}>
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>AI Camera</Text>
+          <Text style={styles.headerTitle}>{headerTitle}</Text>
           <Pressable style={styles.closeButton}>
             <Ionicons name="close" size={20} color={Colors.white} />
           </Pressable>
@@ -60,25 +153,28 @@ export default function ScanScreen() {
             mode="camera"
             label="AI Camera"
             isActive={activeMode === 'camera'}
-            onPress={() => setActiveMode('camera')}
+            onPress={() => handleModeChange('camera')}
           />
           <ScanModeButton
             mode="barcode"
             label="AI Barcode"
             isActive={activeMode === 'barcode'}
-            onPress={() => setActiveMode('barcode')}
+            onPress={() => handleModeChange('barcode')}
           />
           <ScanModeButton
             mode="gallery"
             label="Gallery"
             isActive={activeMode === 'gallery'}
-            onPress={() => setActiveMode('gallery')}
+            onPress={() => handleModeChange('gallery')}
           />
         </View>
 
         {/* Capture Button */}
         <View style={styles.captureButtonContainer}>
-          <Pressable style={styles.captureButton}>
+          <Pressable
+            style={styles.captureButton}
+            onPress={activeMode === 'gallery' ? handlePickImage : handleCapture}
+          >
             <View style={styles.captureButtonInner} />
           </Pressable>
         </View>
@@ -92,9 +188,26 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  cameraPreview: {
+  previewContainer: {
     ...StyleSheet.absoluteFillObject,
+  },
+  camera: {
+    flex: 1,
+  },
+  previewImage: {
+    flex: 1,
     resizeMode: 'cover',
+  },
+  placeholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.background,
+  },
+  placeholderText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: Colors.gray300,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
@@ -111,10 +224,6 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     overflow: 'hidden',
     position: 'relative',
-  },
-  scanAreaImage: {
-    ...StyleSheet.absoluteFillObject,
-    resizeMode: 'cover',
   },
   highlightedArea: {
     position: 'absolute',
