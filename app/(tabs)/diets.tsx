@@ -58,23 +58,16 @@ export default function DietsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.headerTitle}>Diets</Text>
+        <Text style={styles.headerTitle}>Peaty Meals</Text>
 
         <TabSwitcher
-          tabs={['All Diets', 'My Diets']}
+          tabs={['Recommended', 'Favorite']}
           activeTab={activeTab}
           onTabChange={setActiveTab}
         />
 
-        <View style={styles.banner}>
-          <Text style={styles.bannerTitle}>Explore Diet Plans</Text>
-          <Text style={styles.bannerSubtitle}>
-            Personalized plans to match your goals and lifestyle.
-          </Text>
-        </View>
-
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Diets</Text>
+          <Text style={styles.sectionTitle}>Meals</Text>
           <View style={styles.dietsList}>
             {diets.map((diet) => (
               <DietCard
@@ -113,25 +106,6 @@ const styles = StyleSheet.create({
     color: Colors.white,
     lineHeight: 36,
     marginTop: 12,
-  },
-  banner: {
-    backgroundColor: Colors.accent100,
-    borderRadius: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 20,
-    gap: 8,
-  },
-  bannerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: Colors.gray600,
-    lineHeight: 30,
-  },
-  bannerSubtitle: {
-    fontSize: 17,
-    fontWeight: '400',
-    color: Colors.gray600,
-    lineHeight: 25,
   },
   section: {
     gap: 20,
