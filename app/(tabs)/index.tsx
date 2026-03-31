@@ -65,7 +65,7 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <HeaderBar greeting="Good Morning" />
+        <HeaderBar />
 
         <View style={styles.content}>
           <CalendarWeek />

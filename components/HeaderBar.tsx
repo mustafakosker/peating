@@ -3,11 +3,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/Colors';
 
 type HeaderBarProps = {
-  greeting?: string;
+  title?: string;
   avatarUrl?: string;
 };
 
-export function HeaderBar({ greeting = 'Good Morning', avatarUrl }: HeaderBarProps) {
+export function HeaderBar({ title = 'Peating', avatarUrl }: HeaderBarProps) {
   return (
     <View style={styles.container}>
       <View style={styles.userInfo}>
@@ -20,7 +20,7 @@ export function HeaderBar({ greeting = 'Good Morning', avatarUrl }: HeaderBarPro
             </View>
           )}
         </View>
-        <Text style={styles.greeting}>{greeting}</Text>
+        <Text style={styles.title}>{title}</Text>
       </View>
 
       <View style={styles.actions}>
@@ -64,9 +64,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  greeting: {
-    fontSize: 15,
-    fontWeight: '500',
+  title: {
+    fontSize: 24,
+    fontWeight: '600',
     color: Colors.white,
   },
   actions: {
