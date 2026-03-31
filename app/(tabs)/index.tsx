@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Colors } from '../../constants/Colors';
 import { HeaderBar } from '../../components/HeaderBar';
 import { CalendarWeek } from '../../components/CalendarWeek';
-import { CaloriesCard } from '../../components/CaloriesCard';
+import { CaPRatioCard } from '../../components/CaPRatioCard';
+import { PUFACard } from '../../components/PUFACard';
 import { NutritionCard } from '../../components/NutritionCard';
 import { VitalsCard } from '../../components/VitalsCard';
 import { AddVitalSheet } from '../../components/AddVitalSheet';
@@ -83,7 +84,10 @@ export default function HomeScreen() {
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Track Your Fuel</Text>
-            <CaloriesCard caloriesLeft={1672} totalCalories={2000} />
+            <View style={styles.nutritionRow}>
+              <CaPRatioCard calcium={800} phosphorus={700} />
+              <PUFACard current={6} limit={10} />
+            </View>
           </View>
 
           <View style={styles.nutritionRow}>
